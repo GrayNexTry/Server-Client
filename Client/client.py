@@ -1,69 +1,50 @@
 import threading
 import socket
-
-
-client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-print("Введите (ip:port)", end=' ')
-connect = str(input())
-
-ip, port = connect.split(':')
-server_address = (ip, int(port))
-
-
-print("Введите username:", end=' ')
-username = str(input())
-
-client.sendto(f"**JOIN|{username}".encode(), server_address)
+import sys
 
 def handlering(socket: socket.socket):
     while True:
-        data = client.recvfrom(1024)
-        print(data[0].decode())
-        
+        try:
+            data = socket.recvfrom(1024)
+            message = data[0].decode('utf-8')
+            print(message)
+        except Exception as e:
+            print(f"Ошибка при получении данных: {e}")
+            break
+
 def user_input(socket: socket.socket):
     while True:
         message = input()
         if message:
-            client.sendto(f"**SEND|{message}".encode(), server_address)
+            try:
+                socket.sendto(f"**SEND|{message}".encode('utf-8'), server_address)
+            except Exception as e:
+                print(f"Ошибка при отправке сообщения: {e}")
+                break
 
+client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-inp = threading.Thread(target=user_input, args=(client, ))
-handler = threading.Thread(target=handlering, args=(client, ))
+connect = input("Введите (ip:port): ")
+try:
+    ip, port = connect.strip().split(':')
+    server_address = (ip, int(port))
+except ValueError:
+    print("Неправильный формат IP-адреса или порта.")
+    sys.exit()
+
+username = input("Введите username: ").strip()
+if not username:
+    print("Имя пользователя не может быть пустым.")
+    sys.exit()
+
+try:
+    client.sendto(f"**JOIN|{username}".encode('utf-8'), server_address)
+except Exception as e:
+    print(f"Ошибка при подключении к серверу: {e}")
+    sys.exit()
+
+inp = threading.Thread(target=user_input, args=(client,))
+handler = threading.Thread(target=handlering, args=(client,))
 
 inp.start()
 handler.start()
-
-# import threading
-
-# client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-# print("Введите (ip:port)", end=' ')
-# connect = str(input())
-
-# ip, port = connect.split(':')
-# server_address = (ip, int(port))
-
-
-# print("Введите username:", end=' ')
-# username = str(input())
-
-# client.sendto(f"**join|{username}".encode(), server_address)
-
-# def handlering(socket: socket.socket):
-#     while True:
-#         data = client.recvfrom(1024)
-#         print(data[0].decode())
-        
-# def user_input(socket: socket.socket):
-#     while True:
-#         message = input()
-#         if message:
-#             client.sendto(f"**send|{username}|{message}".encode(), server_address)
-
-
-# inp = threading.Thread(target=user_input, args=(client, ))
-# handler = threading.Thread(target=handlering, args=(client, ))
-
-# inp.start()
-# handler.start()

@@ -29,7 +29,7 @@ class MyUDPHandlers(socketserver.BaseRequestHandler):
         if data.decode().startswith('**SEND'):
             
             if self.client_address not in members.keys():
-                socket.sendto("{PREFIX} Вы не авторизованы".encode(), self.client_address)
+                socket.sendto(f"{PREFIX} Вы не авторизованы".encode(), self.client_address)
             else:
                 
                 print(f"{members[self.client_address]}:{self.client_address} -> {split_data[1]}")
@@ -39,7 +39,7 @@ class MyUDPHandlers(socketserver.BaseRequestHandler):
                 
         
         
-HOST, PORT = '192.168.1.8', 50005
+HOST, PORT = 'localhost', 50005
 
 PREFIX = "СЕРВЕР:"
 
