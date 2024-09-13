@@ -37,7 +37,6 @@ while True:
             # Добавление заголовка с номером последовательности
         header = PACKET_SEQ.to_bytes(4, 'big') + i.to_bytes(2, 'big') + total_packets.to_bytes(2, 'big')
 
-            # Отправка пакета всем клиентам
         s.sendto(header + packet, server_address)
 
     PACKET_SEQ = (PACKET_SEQ + 1) % 2**32
